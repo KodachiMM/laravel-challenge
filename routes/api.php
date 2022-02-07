@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\InternetServiceProviderController;
 use App\Http\Controllers\JobController;
-use App\Http\Controllers\LoginController;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\StaffController;
 use Illuminate\Support\Facades\Route;
