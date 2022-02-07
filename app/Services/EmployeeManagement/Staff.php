@@ -2,15 +2,24 @@
 
 namespace App\Services\EmployeeManagement;
 
+use App\Helpers\ExceptionHelper;
+use App\Models\Payroll;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Response;
+
 class Staff implements Employee
 {
-    public function applyJob()
+    public function applyJob($job): bool
     {
-        // TODO: Implement applyJob() method.
+        return true;
     }
-    
-    public function salary(): int
+
+    public function salary($attributes)
     {
-        return 200;
+        try {
+            return Payroll::create($attributes);
+        } catch (QueryException $e) {
+            ExceptionHelper::throwException(Response::HTTP_FORBIDDEN, 'You already generate payroll for this staff for ' . $attributes['month'] . ' ' . $attributes['year'] . '.');
+        }
     }
 }

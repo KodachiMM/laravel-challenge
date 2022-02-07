@@ -37,9 +37,15 @@ class LoginRequest extends FormRequest
             ExceptionHelper::throwException(Response::HTTP_UNAUTHORIZED, 'Your email or password is incorrect.');
         }
 
+        if (auth()->user()->email === 'admin@example.com') {
+            $token = auth()->user()->createToken('User-Token')->plainTextToken;
+        } else {
+            $token = auth()->user()->createToken('User-Token', ['is-admin'])->plainTextToken;
+        }
+
         return [
             'user' => auth()->user(),
-            'token' => auth()->user()->createToken('User-Token')->plainTextToken,
+            'token' => $token,
         ];
     }
 }

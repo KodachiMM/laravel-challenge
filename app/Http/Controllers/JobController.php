@@ -2,24 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Job;
+use App\Models\User;
 use App\Services\EmployeeManagement\Applicant;
-use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class JobController extends Controller
 {
-    protected $applicant;
-    
-    public function __construct(Applicant $applicant)
+    public function __construct(protected Applicant $applicant)
     {
-        $this->applicant = $applicant;
+
     }
-    
-    public function apply(Request $request)
+
+    public function apply(Job $job)
     {
-        $data = $this->applicant->applyJob();
-        
+        request()->validate([
+            'salary' => ['nullable', 'numeric'],
+        ]);
+
+        $this->applicant->applyJob($job);
+
         return response()->json([
-            'data' => $data
+            'data' => 'Your application has been successfully submitted.',
+        ]);
+    }
+
+    public function hire(Job $job, User $user)
+    {
+        if (!auth()->user()->tokenCan('admin')) {
+            abort(Response::HTTP_NOT_FOUND);
+        }
+
+        request()->validate([
+            'salary' => ['required', 'numeric'],
+        ]);
+
+        $this->applicant->hire($job, $user);
+
+        return response()->json([
+            'data' => 'The staff has been hired.',
         ]);
     }
 }
