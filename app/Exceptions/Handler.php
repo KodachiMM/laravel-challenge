@@ -2,7 +2,12 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -37,5 +42,38 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    public function render($request, Throwable $exception)
+    {
+        if ($exception instanceof ModelNotFoundException) {
+            return response()->json([
+                'status' => Response::HTTP_NOT_FOUND,
+                'message' => 'Request not found.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($exception instanceof NotFoundHttpException) {
+            return response()->json([
+                'status' => Response::HTTP_NOT_FOUND,
+                'message' => 'Request not found.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        if ($exception instanceof MethodNotAllowedHttpException) {
+            return response()->json([
+                'status' => Response::HTTP_METHOD_NOT_ALLOWED,
+                'message' => $exception->getMessage(),
+            ], Response::HTTP_METHOD_NOT_ALLOWED);
+        }
+
+        if ($exception instanceof ValidationException) {
+            return response()->json([
+                'status' => Response::HTTP_UNPROCESSABLE_ENTITY,
+                'message' => collect($exception->errors())->first()[0],
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        return parent::render($request, $exception);
     }
 }
