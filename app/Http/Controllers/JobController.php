@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ExceptionHelper;
 use App\Models\Job;
 use App\Models\User;
 use App\Services\EmployeeManagement\Applicant;
@@ -16,6 +17,10 @@ class JobController extends Controller
 
     public function apply(Job $job)
     {
+        if (auth()->user()->tokenCan('admin')) {
+            ExceptionHelper::throwException(Response::HTTP_FORBIDDEN, 'Admin cannot apply.');
+        }
+
         request()->validate([
             'salary' => ['nullable', 'numeric'],
         ]);
